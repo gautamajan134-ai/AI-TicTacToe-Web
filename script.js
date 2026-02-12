@@ -14,14 +14,36 @@ function createBoard() {
 }
 
 function handleMove(index) {
-    if (board[index] !== "" || checkWinner(board)) return;
+    if (board[index] !== "" || getWinner(board)) return;
 
     board[index] = "X";
     createBoard();
 
-    if (checkWinner(board) || isFull(board)) return;
+    let winner = getWinner(board);
+    if (winner) {
+        showResult(winner + " Wins!");
+        return;
+    }
 
-    setTimeout(aiMove, 300);
+    if (isFull(board)) {
+        showResult("It's a Draw!");
+        return;
+    }
+
+    setTimeout(() => {
+        aiMove();
+
+        let winnerAI = getWinner(board);
+        if (winnerAI) {
+            showResult(winnerAI + " Wins!");
+            return;
+        }
+
+        if (isFull(board)) {
+            showResult("It's a Draw!");
+        }
+
+    }, 300);
 }
 
 function aiMove() {
@@ -66,7 +88,7 @@ function bestMove() {
 }
 
 function minimax(board, depth, isMaximizing) {
-    let winner = checkWinner(board);
+    let winner = getWinner(board);
     if (winner === "O") return 1;
     if (winner === "X") return -1;
     if (isFull(board)) return 0;
@@ -94,20 +116,21 @@ function minimax(board, depth, isMaximizing) {
     }
 }
 
-function checkWinner(board) {
+function getWinner(board) {
     const wins = [
         [0,1,2],[3,4,5],[6,7,8],
         [0,3,6],[1,4,7],[2,5,8],
         [0,4,8],[2,4,6]
     ];
+
     for (let [a,b,c] of wins) {
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            alert(board[a] + " Wins!");
             return board[a];
         }
     }
+
     return null;
-}
+        }
 
 function isFull(board) {
     return board.every(cell => cell !== "");
@@ -117,5 +140,10 @@ function restartGame() {
     board = ["", "", "", "", "", "", "", "", ""];
     createBoard();
 }
-
+function showResult(message) {
+    setTimeout(() => {
+        alert(message);
+        restartGame();
+    }, 100);
+}
 createBoard();
